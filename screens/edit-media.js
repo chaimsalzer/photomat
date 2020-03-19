@@ -1,72 +1,50 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as ImageManipulator from "expo-image-manipulator";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  FlatList,
-  Button,
-  Dimensions
-} from "react-native";
+import { View, Image, StyleSheet } from "react-native";
+import ViewPager from "@react-native-community/viewpager";
+import { Photo } from "../components/photo";
 
 export default function EditMedia({ route }) {
-  const canvasEl = useRef(null);
   const [canvasLayout, setCanvasLayout] = useState({ width: 0, height: 0 });
 
-  const screenWidth = Math.round(Dimensions.get("window").width);
-  const screenHeight = Math.round(Dimensions.get("window").height);
-
   const { selectedImgs } = route.params;
-  const [img, setImg] = useState(selectedImgs[0]);
-
-  const cropImage = async () => {
-    const manipResult = await ImageManipulator.manipulateAsync(
-      img.uri,
-      [{ rotate: 90 }],
-      { compress: 1, format: ImageManipulator.SaveFormat.PNG }
-    );
-    setImg(manipResult);
+  const onLayoutHandler = e => {
+    setCanvasLayout(e.nativeEvent.layout);
   };
 
-  useEffect(() => {
-    // cropImage();
-  }, []);
-
-  const pad = 0.9;
-  const width = screenWidth * pad;
-  const ratio = width / img.width;
-  const height = img.height * ratio - 80;
-
-  // const canvasWidth = 100;
-  const canvasHeight = 100;
+  // const cropImage = async () => {
+  //   const manipResult = await ImageManipulator.manipulateAsync(
+  //     img.uri,
+  //     [{ rotate: 90 }],
+  //     { compress: 1, format: ImageManipulator.SaveFormat.PNG }
+  //   );
+  //   setImg(manipResult);
+  // };
 
   return (
-    <View style={{ width: "100%", backgroundColor: "green", alignItems: 'center' }}>
-      <View
-        onLayout={event => setCanvasLayout(event.nativeEvent.layout)}
-        style={{
-          width: "90%",
-          height: canvasLayout.width * 1.5,
-          display: "flex",
-          backgroundColor: "blue",
-          alignItems: "center"
-        }}
-      >
-        <Image
-          source={{ uri: img.uri }}
-          style={{
-            width: canvasLayout.width,
-            height: canvasLayout.height,
-            overflow: "hidden"
-          }}
-          resizeMethod="scale"
-        />
-        {/* <Image
-        source={{ uri: img.uri }}
-        style={{ width: img.width / 12, height: img.height / 12 }}
-      /> */}
-      </View>
-    </View>
+    <ViewPager style={styles.viewPager} initialPage={0}>
+      {selectedImgs.map(img => (
+        <View style={styles.page} key={img.id}>
+          <View onLayout={onLayoutHandler} style={styles.imgWrapper}>
+            <Photo img={img} canvasLayout={canvasLayout} />
+          </View>
+        </View>
+      ))}
+    </ViewPager>
   );
 }
+
+const styles = StyleSheet.create({
+  viewPager: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "green",
+    alignItems: "center"
+  },
+  page: {
+    width: "100%",
+    backgroundColor: "green",
+    alignItems: "center"
+  },
+  imgWrapper: { width: "90%", backgroundColor: "yellow" }
+});

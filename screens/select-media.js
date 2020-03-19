@@ -30,8 +30,12 @@ export default function SelectMedia({ navigation }) {
     requestPermissions();
   }, []);
 
-  const onImgPressHandler = item => {
-    setSelectedImgs([item]);
+  const onImgPressHandler = img => {
+    const imgs = selectedImgs.includes(img)
+      ? selectedImgs.filter(i => i !== img)
+      : [...selectedImgs, img];
+
+    setSelectedImgs(imgs);
   };
 
   return (
